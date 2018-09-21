@@ -1,6 +1,6 @@
 {
   "name": "rise-server-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Brings the functionality of the RISE API to the server which allows users to interact with the RISE network via HTTP(S) GET requests",
   "main": "index.js",
   "scripts": {
