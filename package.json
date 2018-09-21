@@ -8,11 +8,15 @@
   },
   "keywords": [
     "RISE",
-    "RISE",
     "API",
     "blockchain",
     "crypto"
   ],
   "author": "Vergill Lemmert <vergillrl@gmail.com> (https://www.novaprisma.pro)",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": "https://github.com/VergillR/rise-server-api",
+  "dependencies": {
+    "express": "^4.16.3",
+    "risejs": "^1.4.0"
+  }
 }
