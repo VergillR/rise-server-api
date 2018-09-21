@@ -2,7 +2,7 @@
 
 This module implements the functionality of the RISE API to the server which allows users to interact with the RISE network via HTTP(S) GET requests.
 
-### Installation
+## Installation
 Using npm:
 
 `npm i rise-server-api`
@@ -11,7 +11,7 @@ Express is required to run as server, so if Express was not installed yet, also 
 
 `npm i express`
 
-### Standard setup
+## Standard setup
 If the server hosts a web site (i.e. serves static content, support routes and middleware), you can use the standard setup which will add the RISE interface on top of the existing routes and paths of the web site.
 In Node.js, the standard way to enhance the Express app looks like:
 ```javascript
@@ -50,7 +50,7 @@ app.listen(port, () => {
 })
 ```
 
-### Minimal setup
+## Minimal setup
 If the server is only used as an interface to the RISE network, you can skip the standard implementation and write the entire application with just 2 lines of code:
 
 ```javascript
@@ -59,7 +59,7 @@ const { app } = new (require('rise-server-api'))({ expressApp: require('express'
 app.listen(process.env.PORT || 3000)
 ```
 
-### Testing
+## Testing
 Run your server with
 
 `npm run start`
@@ -71,7 +71,7 @@ Then use a browser or use curl GET from the terminal and visit the following lin
 You are effectively calling from the RISE API library **transactions** the function **getUnconfirmedTransactions** via the server and the default RISE node.
 The server should now send a request to the default RISE node, which responds with a JSON object (with the property **success** set to **true**) that should then be served to you. If you get an error or redirection, something went wrong.
 
-### Using the RISE API
+## Using the RISE API
 By default, most functions from the RISE API libraries **accounts, blocks, delegates** and **transactions** are available.
 Depending on whether the function needs no arguments, single arguments (params) or a query object, HTTP(S) GET requests should be in the form:
   ```
@@ -91,7 +91,7 @@ Depending on whether the function needs no arguments, single arguments (params) 
  localhost:3000/transactions/getList/query?limit=50&senderId=7889374079483640385R&and:fromHeight=1318634&and:toHeight=1318834
  ```
 
-### Basic customization
+## Basic customization
 Basic customization is done by providing the constructor an object with certain settings. Here are the settings with their default values:
 ```javascript
 const settings = {
@@ -118,7 +118,7 @@ const rise = new RISE(settings)
 const { app } = new (require('rise-server-api'))({ ...settings, expressApp: require('express')() })
 ```
 
-### Advanced customization
+## Advanced customization
 Because the constructor returns all functionalities of the module, the module can be customized by changing a property, just like with any other object.
 For example, the validation rules for the query properties and params are quite loose. One can change a validation function like:
 ```javascript
@@ -142,5 +142,3 @@ validateQuery['limit'] = (nr) => {
   return parseInt(nr, 10) && nr.match(/^\d*$/) !== null && parseInt(nr, 10) > 0 && parseInt(nr, 10) <= 500
 }
 ```
-
-
