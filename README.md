@@ -61,10 +61,10 @@ app.listen(process.env.PORT || 3000)
 
 ## Testing
 In case you do not have a run script ready, add inside *package.json* the following (assuming *index.js* is your entry point):
-```json
+```JSON
 "scripts": {
-    "start": "node index.js"
-  }
+  "start": "node index.js"
+}
 ```
 
 Run your server with
