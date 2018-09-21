@@ -131,7 +131,7 @@ validateQuery: {
 ```javascript
 // to change the 'limit' validation rule after importing it (for a standard setup):
 const rise = new RISE()
-rise.validationQuery['limit'] = (nr) => { 
+rise.validateQuery['limit'] = (nr) => { 
   return parseInt(nr, 10) && nr.match(/^\d*$/) !== null && parseInt(nr, 10) > 0 && parseInt(nr, 10) <= 500
 }
 ```
