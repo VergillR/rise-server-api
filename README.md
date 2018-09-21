@@ -134,7 +134,8 @@ const rise = new RISE()
 rise.validationQuery['limit'] = (nr) => { 
   return parseInt(nr, 10) && nr.match(/^\d*$/) !== null && parseInt(nr, 10) >= 0 && parseInt(nr, 10) <= 500
 }
-
+```
+```javascript
 // to change the 'limit' validation rule for a minimal setup:
 const { app, validateQuery } = new (require('rise-server-api'))({ expressApp: require('express')() })
 validateQuery['limit'] = (nr) => { 
