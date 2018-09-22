@@ -110,6 +110,11 @@ const settings = {
   apiLibraries = [ 'accounts', 'blocks', 'delegates', 'transactions' ],
   // set which functions from the RISE API should NOT be available; typically, functions that do not provide information should be excluded
   excludeFunctions = [ 'enable', 'toggleForging', 'put', 'get' ],
+  // the base path on which the RISE API functions are available to the outside world, e.g. '/rise/info' sets 'localhost:3000/rise/info/'
+  basePathName = '',
+  // by default, if a query property or param fails validation, the request is still send to the RISE node with the remaining valid properties or param
+  // if false: when a validation fails, no request is send to the RISE node and instead an empty response is returned
+  alwaysSendQuery = true,
   // if set to an Express app, it will enhance that app with the RISE API functionality; primarily used for minimal setups
   expressApp = null
 }

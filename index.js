@@ -6,9 +6,9 @@ const numbersRegex = /^\d*$/
 module.exports = class {
   /**
    * @constructor
-   * @param {{ r: object, node: string, apiLibraries: string[], excludeFunctions: string[], expressApp: object } settings Setup the connection and set which part of the RISE API should interact with HTTP(S) GET
+   * @param {{ r: object, node: string, apiLibraries: string[], excludeFunctions: string[], basePathName: string, alwaysSendQuery: boolean, expressApp: object } settings Setup the connection and set which part of the RISE API should interact with HTTP(S) GET
    */
-  constructor ({ r = rise, node = 'https://wallet.rise.vision', apiLibraries = [ 'accounts', 'blocks', 'delegates', 'transactions' ], excludeFunctions = [ 'enable', 'toggleForging', 'put', 'get' ], expressApp = null } = {}) {
+  constructor ({ r = rise, node = 'https://wallet.rise.vision', apiLibraries = [ 'accounts', 'blocks', 'delegates', 'transactions' ], excludeFunctions = [ 'enable', 'toggleForging', 'put', 'get' ], basePathName = '', alwaysSendQuery = true, expressApp = null } = {}) {
     this.r = r
     this.node = node
     this.r.nodeAddress = this.node
@@ -48,8 +48,12 @@ module.exports = class {
     }
     const fns = this.excludeUnwantedFunctionsFromAPI(apiLibraries, excludeFunctions)
     this.riseFullAPI = apiLibraries.map((val, index) => [apiLibraries[index], fns[index]])
+    this.basePathName = basePathName && !basePathName.endsWith('/') ? basePathName + '/' : basePathName
+    this.alwaysSendQuery = alwaysSendQuery
     this.app = (expressApp && typeof expressApp === 'function') ? this.getExpressAppWithRiseAPI(expressApp) : undefined
-    return { rise: this.r, riseAPI: this.riseAPI, riseFullAPI: this.riseFullAPI, validateQuery: this.validateQuery, validateParams: this.validateParams, app: this.app, getExpressAppWithRiseAPI: this.getExpressAppWithRiseAPI, excludeUnwantedFunctionsFromAPI: this.excludeUnwantedFunctionsFromAPI }
+    this.getExpressAppWithRiseAPI = this.getExpressAppWithRiseAPI
+    this.excludeUnwantedFunctionsFromAPI = this.excludeUnwantedFunctionsFromAPI
+    return this
   }
 
   /**
@@ -68,13 +72,13 @@ module.exports = class {
   }
 
   /**
-   * Returns an Express app that has access to the RISE API and allows handling queries by HTTP GET; The length (i.e. number of different parts of the path) is significant as it triggers the RISE API (default lengths are 3 and 4); You can change the lengths by providing a basePathName; if no Express app is given, a new one is created and returned
+   * Returns an Express app that has access to the RISE API and allows handling queries by HTTP GET; You can change the basePathName if a path should precede the RISE function paths (i.e. you do not want the RISE paths to be attached directly to the main directory); if no Express app is given, a new one is created and returned
    * @param {function} app Express app
-   * @param {string} [basePathName=''] Base path name added on top of the paths used by the RISE API; this should only be set if you want to change the path lengths reserved by the RISE API
+   * @param {string} [basePathName=''] Base path name prefixed to the paths used by the RISE API; this should only be set if you want to change the directory reserved by the RISE API
    * @param {object} RISE Object that was created by this module (or has the exact same signature) that is used to map the functionality of the RISE API to the server
    */
-  getExpressAppWithRiseAPI (app = express(), basePathName = '', { riseAPI = this.riseAPI, riseFullAPI = this.riseFullAPI, validateQuery = this.validateQuery, validateParams = this.validateParams } = {}) {
-    return app.get('*', (req, res, next) => {
+  getExpressAppWithRiseAPI (app = express(), basePathName = this.basePathName, { riseAPI = this.riseAPI, riseFullAPI = this.riseFullAPI, validateQuery = this.validateQuery, validateParams = this.validateParams, alwaysSendQuery = this.alwaysSendQuery } = {}) {
+    return app.get(basePathName + '*', (req, res, next) => {
       const lengthModifier = basePathName ? String(basePathName).split('/').length - 1 : 0
       const lowerPathLength = lengthModifier + 3
       const upperPathLength = lengthModifier + 4
@@ -93,20 +97,27 @@ module.exports = class {
             const userQueryProps = Object.keys(req.query)
             if (userQueryProps.length > 0) {
               arg1 = {}
+              let allValid = true
               userQueryProps.map((prop, index) => {
                 if (allowedQueryProps.indexOf(prop) !== -1 && validateQuery[prop](req.query[prop])) {
                   arg1[prop] = req.query[prop]
+                } else {
+                  allValid = false
                 }
               })
+              if (!alwaysSendQuery && !allValid) res.send()
             }
           } else if (input === 'params') {
             // only accept up to 2 params
             const userQueryProps = [ Object.keys(req.query)[0], Object.keys(req.query)[1] ]
-            if (allowedParams.indexOf(userQueryProps[0]) !== -1) {
+            if (userQueryProps[0] && allowedParams.indexOf(userQueryProps[0]) !== -1) {
               arg1 = validateParams[userQueryProps[0]](req.query[userQueryProps[0]]) ? req.query[userQueryProps[0]] : undefined
-              if (arg1 && allowedParams.indexOf(userQueryProps[1]) !== -1) {
+              if (userQueryProps[1] && allowedParams.indexOf(userQueryProps[1]) !== -1) {
                 arg2 = validateParams[userQueryProps[1]](req.query[userQueryProps[1]]) ? req.query[userQueryProps[1]] : undefined
               }
+            }
+            if (!alwaysSendQuery) {
+              if (arg1 === undefined || (userQueryProps[1] && arg2 === undefined)) res.send()
             }
           }
           try {
@@ -125,7 +136,7 @@ module.exports = class {
           next()
         }
       } else {
-        // The given URL path length is smaller than the lowerPathLength (default 3) or larger than upperPathLength (default 4), so the RISE api is not triggered; Routing now goes through the other paths in the Express app
+        // Routing now goes through the other paths in the Express app
         next()
       }
     })
