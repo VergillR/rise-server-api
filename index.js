@@ -48,7 +48,7 @@ module.exports = class {
     }
     const fns = this.excludeUnwantedFunctionsFromAPI(apiLibraries, excludeFunctions)
     this.riseFullAPI = apiLibraries.map((val, index) => [apiLibraries[index], fns[index]])
-    this.basePathName = basePathName
+    this.basePathName = !basePathName ? '' : (basePathName.startsWith('/') ? basePathName : '/' + basePathName)
     this.alwaysSendQuery = alwaysSendQuery
     this.app = (expressApp && typeof expressApp === 'function') ? this.getExpressAppWithRiseAPI(expressApp) : undefined
     this.getExpressAppWithRiseAPI = this.getExpressAppWithRiseAPI
