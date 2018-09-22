@@ -48,7 +48,7 @@ module.exports = class {
     }
     const fns = this.excludeUnwantedFunctionsFromAPI(apiLibraries, excludeFunctions)
     this.riseFullAPI = apiLibraries.map((val, index) => [apiLibraries[index], fns[index]])
-    this.basePathName = basePathName && !basePathName.endsWith('/') ? basePathName + '/' : basePathName
+    this.basePathName = basePathName
     this.alwaysSendQuery = alwaysSendQuery
     this.app = (expressApp && typeof expressApp === 'function') ? this.getExpressAppWithRiseAPI(expressApp) : undefined
     this.getExpressAppWithRiseAPI = this.getExpressAppWithRiseAPI
@@ -78,7 +78,7 @@ module.exports = class {
    * @param {object} RISE Object that was created by this module (or has the exact same signature) that is used to map the functionality of the RISE API to the server
    */
   getExpressAppWithRiseAPI (app = express(), basePathName = this.basePathName, { riseAPI = this.riseAPI, riseFullAPI = this.riseFullAPI, validateQuery = this.validateQuery, validateParams = this.validateParams, alwaysSendQuery = this.alwaysSendQuery } = {}) {
-    return app.get(basePathName + '*', (req, res, next) => {
+    return app.get(basePathName === '' ? '*' : basePathName + '/*', (req, res, next) => {
       const lengthModifier = basePathName ? String(basePathName).split('/').length - 1 : 0
       const lowerPathLength = lengthModifier + 3
       const upperPathLength = lengthModifier + 4
