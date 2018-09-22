@@ -105,7 +105,7 @@ module.exports = class {
                   allValid = false
                 }
               })
-              if (!alwaysSendQuery && !allValid) res.send()
+              if (!alwaysSendQuery && !allValid) return res.send()
             }
           } else if (input === 'params') {
             // only accept up to 2 params
@@ -117,7 +117,7 @@ module.exports = class {
               }
             }
             if (!alwaysSendQuery) {
-              if (arg1 === undefined || (userQueryProps[1] && arg2 === undefined)) res.send()
+              if (arg1 === undefined || (userQueryProps[1] && arg2 === undefined)) return res.send()
             }
           }
           try {
