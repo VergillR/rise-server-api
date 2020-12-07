@@ -16,7 +16,7 @@
   "license": "MIT",
   "repository": "https://github.com/VergillR/rise-server-api",
   "dependencies": {
-    "express": "^4.16.3",
+    "express": "^4.17.1",
     "risejs": "^1.4.0"
   }
 }
